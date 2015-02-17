@@ -3,14 +3,13 @@
 Utility to dump all groups and their members from a Google Apps domain.
 """
 
-from collections import defaultdict
 import httplib2
 import argparse
 import pprint
 import sys
 import random
 from retrying import retry
-import time
+from datetime import datetime
 
 from apiclient.errors import HttpError
 from apiclient.http import BatchHttpRequest
@@ -78,13 +77,13 @@ def main(argv):
 
     # Authenticate and construct service
     scope = ("https://www.googleapis.com/auth/admin.directory.group"
-             "admin.directory.group.member")
+             " "
+             "https://www.googleapis.com/auth/admin.directory.group.member")
     service, flags = sample_tools.init(
         argv, 'admin', 'directory_v1', __doc__, __file__, parents=[argparser],
         scope=scope
         )
 
-    exit
     group_service = service.groups()
     if flags.verbose:
         print 'Retrieving group list for', flags.domain
@@ -94,10 +93,11 @@ def main(argv):
         print 'Retrieving member lists for groups'
 
 # Convert the API return to a dictionary
-    group_dump = {}
+    groupdir = {}
+
     member_service = service.members()
     for group in all_groups:
-        group_dump[group['email']] = {
+        groupdir[group['email']] = {
             'name': group['name'],
             'id': group['id'],
             'directMembersCount': group['directMembersCount'],
@@ -106,15 +106,18 @@ def main(argv):
         if flags.verbose:
             print 'Fetching', \
                 group['email'], \
-                len(group_dump), \
+                len(groupdir), \
                 'of', \
                 len(all_groups)
         members = list_group_members(member_service, group['id'])
-        group_dump[group['email']]['members'] = members
+        groupdir[group['email']]['members'] = members
 
     if flags.verbose:
         print 'All members retrieved. Dumping pickle file'
 
+    group_dump = {}
+    group_dump['dumpdate'] = datetime.utcnow()
+    group_dump['groupdir'] = groupdir
     with open('group_dump.pickle', 'wb') as f:
         pickle.dump(group_dump, f)
 

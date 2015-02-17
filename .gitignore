@@ -1,5 +1,7 @@
+# Google OAuth artifacts
 admin.dat
 client_secrets.json
+# Data files
 group_dump.pickle
 # Python template gitignore below
 # Byte-compiled / optimized / DLL files

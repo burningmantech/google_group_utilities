@@ -24,7 +24,7 @@ $ group_audit.py [-v] [-i INPUT] command
 ```
 where
 * -i is an optional flag defining the dump file produced by dump_groups.py
-* -v Versbose output. Will print the date the dump file was created.
+* -v Verbose output. Will print the date the dump file was created.
 * command: audit to run. The current audits are:
   - empty: groups that have no members
   - single_user_member: groups that have only one member, where the member is not another group
